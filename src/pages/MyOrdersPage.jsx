@@ -70,6 +70,12 @@ function MyOrdersPage() {
           
           return (
             <div key={order.id} className={`bg-white p-4 rounded-lg shadow-md border-l-4 ${isPaid ? 'border-green-500' : 'border-cafe-primary'}`}>
+              {/* --- DEBUGGING START --- */}
+              <div className="text-xs bg-red-100 p-1 mb-2">
+                <p>DEBUG: Status: {order.status}</p>
+                <p>DEBUG: Timestamp: {String(order.statusChangeTimestamp)}</p>
+              </div>
+              {/* --- DEBUGGING END --- */}
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-lg font-bold">Үстөл #{order.tableId}</h2>
                 {/* 
