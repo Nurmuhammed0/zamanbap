@@ -28,6 +28,7 @@ const getStatusText = (status) => {
     case 'In Progress': return 'Даярдалууда';
     case 'Ready': return 'Даяр болду';
     case 'Completed': return 'Аткарылды';
+    case 'Paid': return 'Төлөндү';
     default: return 'Статус белгисиз';
   }
 };
@@ -39,6 +40,7 @@ const getStatusClasses = (status) => {
     case 'In Progress': return 'bg-yellow-500';
     case 'Ready': return 'bg-green-500';
     case 'Completed': return 'bg-gray-500';
+    case 'Paid': return 'bg-green-600'; // Түс кошулду
     default: return 'bg-gray-400';
   }
 };

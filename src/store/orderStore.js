@@ -38,7 +38,7 @@ export const useOrderStore = create(
           let updatedClientActiveOrder = state.clientActiveOrder;
           if (state.clientActiveOrder && state.clientActiveOrder.orderId === orderId) {
             updatedClientActiveOrder = { ...state.clientActiveOrder, status: newStatus };
-            if (newStatus === 'Completed') {
+            if (newStatus === 'Paid') { // Changed from Completed
               updatedClientActiveOrder.statusChangeTimestamp = new Date().toISOString();
             }
           }
@@ -47,7 +47,7 @@ export const useOrderStore = create(
           const updatedClientOrderHistory = state.clientOrderHistory.map(order => {
             if (order.orderId === orderId) {
               const updatedOrder = { ...order, status: newStatus };
-              if (newStatus === 'Completed') {
+              if (newStatus === 'Paid') { // Changed from Completed
                 updatedOrder.statusChangeTimestamp = new Date().toISOString();
               }
               return updatedOrder;
@@ -90,23 +90,23 @@ export const useOrderStore = create(
         });
       },
 
-      // Clears orders that have been in 'Completed' status for more than 5 minutes.
+      // Clears orders that have been in 'Paid' status for more than 5 minutes.
       clearExpiredOrders: () => {
         set(state => {
           const now = new Date();
           const freshOrders = state.clientOrderHistory.filter(order => {
-            if (order.status !== 'Completed') {
-              return true; // Keep all non-completed orders
+            if (order.status !== 'Paid') { // Changed from Completed
+              return true; // Keep all non-paid orders
             }
 
-            // For 'Completed' orders:
+            // For 'Paid' orders:
             if (!order.statusChangeTimestamp) {
-              // This is an old 'Completed' order from before the logic change.
+              // This is an old 'Paid' order from before the logic change.
               // To align with the new rule, we remove it immediately.
               return false; 
             }
 
-            // Check if 5 minutes have passed since completion.
+            // Check if 5 minutes have passed since payment.
             const isExpired = now - new Date(order.statusChangeTimestamp) >= FIVE_MINUTES_IN_MS;
             return !isExpired; // Keep if not expired, remove if expired.
           });
