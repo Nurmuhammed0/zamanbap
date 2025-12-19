@@ -67,19 +67,29 @@ function MyOrdersPage() {
       <div className="space-y-4">
         {clientOrderHistory.map((order) => {
           const isPaid = order.status === 'Paid';
-          // Timer logic now depends on 'Paid' status and its specific timestamp
-          const timerTimestamp = isPaid ? (order.statusChangeTimestamp || order.timestamp) : order.timestamp;
-
+          
           return (
             <div key={order.id} className={`bg-white p-4 rounded-lg shadow-md border-l-4 ${isPaid ? 'border-green-500' : 'border-cafe-primary'}`}>
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-lg font-bold">Үстөл #{order.tableId}</h2>
-                <CountdownTimer
-                  key={order.id + order.status} // Add status to key to force re-mount on status change
-                  timestamp={timerTimestamp}
-                  duration={isPaid ? FIVE_MINUTES_IN_SECONDS : undefined} // 5 mins for Paid, otherwise default
-                  onComplete={isPaid ? clearExpiredOrders : undefined}
-                />
+                {/* 
+                  Таймердин логикасы:
+                  - Эгер буйрутма төлөнсө (isPaid) ЖАНА statusChangeTimestamp бар болсо, 5 мүнөттүк таймерди көрсөт.
+                  - Болбосо, демейки 24 сааттык таймерди көрсөт.
+                */}
+                {(isPaid && order.statusChangeTimestamp) ? (
+                  <CountdownTimer
+                    key={order.id + '-paid'}
+                    timestamp={order.statusChangeTimestamp}
+                    duration={FIVE_MINUTES_IN_SECONDS}
+                    onComplete={clearExpiredOrders}
+                  />
+                ) : (
+                  <CountdownTimer
+                    key={order.id + '-default'}
+                    timestamp={order.timestamp}
+                  />
+                )}
               </div>
               <p className="text-sm text-gray-700 mb-2">Статус: <span className="font-semibold">{getStatusText(order.status)}</span></p>
               <ul className="space-y-2">

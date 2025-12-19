@@ -243,10 +243,10 @@ wss.on('connection', (ws) => {
         }
 
         // --- Кассаны башкаруу ---
-        case 'mark_as_paid': { // Changed from delete to update
+        case 'mark_as_paid': {
           orders = orders.map(order => 
               order.orderId === data.payload.orderId 
-                  ? { ...order, status: 'Paid' } 
+                  ? { ...order, status: 'Paid', statusChangeTimestamp: new Date().toISOString() } 
                   : order
           );
           broadcast({ type: 'orders_updated', payload: orders });
