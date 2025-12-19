@@ -77,15 +77,17 @@ export const useOrderStore = create(
             }
           }
 
-          // Also update the history based on the new full list from the server
-          const updatedHistory = state.clientOrderHistory
-            .map(histOrder => updatedOrders.find(updOrder => updOrder.orderId === histOrder.orderId))
-            .filter(Boolean); // Filter out any orders that are no longer on the server (archived)
+          // Filter updatedOrders to keep only those relevant to this client's history or active order.
+          // This ensures that new properties like statusChangeTimestamp from the server are included.
+          const relevantClientOrders = updatedOrders.filter(serverOrder => 
+            state.clientOrderHistory.some(clientOrder => clientOrder.orderId === serverOrder.orderId) ||
+            (state.clientActiveOrder && state.clientActiveOrder.orderId === serverOrder.orderId)
+          );
 
           return {
             orders: updatedOrders, // for admin
             clientActiveOrder: updatedClientActiveOrder,
-            clientOrderHistory: updatedHistory,
+            clientOrderHistory: relevantClientOrders, // Use the filtered server list directly
           };
         });
       },
