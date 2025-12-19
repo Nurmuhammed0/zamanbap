@@ -48,7 +48,7 @@ function CartPage() {
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Себет бош</h1>
         <p className="text-gray-600 mb-6">Менюдан бир нерсе тандап, кайра келиңиз.</p>
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate(tableId ? `/?table=${tableId}` : '/')}
           className="bg-cafe-primary text-white font-bold py-3 px-6 rounded-lg text-lg flex items-center space-x-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
@@ -62,7 +62,7 @@ function CartPage() {
     <div className="container mx-auto p-4 max-w-2xl min-h-screen bg-cafe-background">
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-cafe-primary">Сиздин себетиңиз</h1>
-        <button onClick={() => navigate('/')} className="text-sm text-gray-600 hover:underline flex items-center space-x-1">
+        <button onClick={() => navigate(tableId ? `/?table=${tableId}` : '/')} className="text-sm text-gray-600 hover:underline flex items-center space-x-1">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
           <span>Менюга кайтуу</span>
         </button>

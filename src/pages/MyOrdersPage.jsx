@@ -18,7 +18,17 @@ function MyOrdersPage() {
   const navigate = useNavigate();
   const clientOrderHistory = useOrderStore((state) => state.clientOrderHistory);
 
+  // Get tableId from the most recent order.
+  const lastTableId = clientOrderHistory[0]?.tableId;
 
+  const handleReturnToMenu = () => {
+    if (lastTableId) {
+      navigate(`/?table=${lastTableId}`);
+    } else {
+      // Fallback if for some reason tableId is not available or history is empty
+      navigate('/');
+    }
+  };
 
   if (clientOrderHistory.length === 0) {
     return (
@@ -26,7 +36,7 @@ function MyOrdersPage() {
         <h1 className="text-3xl font-bold mb-4">Буйрутмаларыңыз жок</h1>
         <p className="text-gray-600 mb-6">Сизде акыркы 2 сааттын ичинде эч кандай буйрутма жок.</p>
         <button
-          onClick={() => navigate('/')}
+          onClick={handleReturnToMenu}
           className="bg-cafe-primary text-white font-bold py-3 px-6 rounded-lg text-lg flex items-center space-x-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
@@ -40,7 +50,7 @@ function MyOrdersPage() {
     <div className="container mx-auto p-4 max-w-2xl min-h-screen">
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-cafe-primary">Буйрутмаларым</h1>
-        <button onClick={() => navigate('/')} className="text-sm text-gray-600 hover:underline flex items-center space-x-1">
+        <button onClick={handleReturnToMenu} className="text-sm text-gray-600 hover:underline flex items-center space-x-1">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
           <span>Менюга кайтуу</span>
         </button>

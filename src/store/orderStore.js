@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import localforage from 'localforage';
 
-const TWO_HOURS_IN_MS = 2 * 60 * 60 * 1000;
+const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
 
 export const useOrderStore = create(
   persist(
@@ -38,12 +38,22 @@ export const useOrderStore = create(
           let updatedClientActiveOrder = state.clientActiveOrder;
           if (state.clientActiveOrder && state.clientActiveOrder.orderId === orderId) {
             updatedClientActiveOrder = { ...state.clientActiveOrder, status: newStatus };
+            if (newStatus === 'Completed') {
+              updatedClientActiveOrder.statusChangeTimestamp = new Date().toISOString();
+            }
           }
           
           // Update client's order history
-          const updatedClientOrderHistory = state.clientOrderHistory.map(order =>
-            order.orderId === orderId ? { ...order, status: newStatus } : order
-          );
+          const updatedClientOrderHistory = state.clientOrderHistory.map(order => {
+            if (order.orderId === orderId) {
+              const updatedOrder = { ...order, status: newStatus };
+              if (newStatus === 'Completed') {
+                updatedOrder.statusChangeTimestamp = new Date().toISOString();
+              }
+              return updatedOrder;
+            }
+            return order;
+          });
 
           return { 
             orders: updatedOrders, 
@@ -80,13 +90,26 @@ export const useOrderStore = create(
         });
       },
 
-      // Clears orders from the history that are older than 2 hours
+      // Clears orders that have been in 'Completed' status for more than 5 minutes.
       clearExpiredOrders: () => {
         set(state => {
           const now = new Date();
-          const freshOrders = state.clientOrderHistory.filter(order => 
-            now - new Date(order.timestamp) < TWO_HOURS_IN_MS
-          );
+          const freshOrders = state.clientOrderHistory.filter(order => {
+            if (order.status !== 'Completed') {
+              return true; // Keep all non-completed orders
+            }
+
+            // For 'Completed' orders:
+            if (!order.statusChangeTimestamp) {
+              // This is an old 'Completed' order from before the logic change.
+              // To align with the new rule, we remove it immediately.
+              return false; 
+            }
+
+            // Check if 5 minutes have passed since completion.
+            const isExpired = now - new Date(order.statusChangeTimestamp) >= FIVE_MINUTES_IN_MS;
+            return !isExpired; // Keep if not expired, remove if expired.
+          });
           return { clientOrderHistory: freshOrders };
         });
       },
