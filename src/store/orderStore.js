@@ -27,16 +27,16 @@ export const useOrderStore = create(
       },
       
       // Updates the status of orders
-      updateOrderStatus: (id, newStatus) => {
+      updateOrderStatus: (orderId, newStatus) => {
         set(state => {
           // Update admin-facing list
           const updatedOrders = state.orders.map(order => 
-            order.id === id ? { ...order, status: newStatus } : order
+            order.orderId === orderId ? { ...order, status: newStatus } : order
           );
           
           // Update client's active order if it matches
           let updatedClientActiveOrder = state.clientActiveOrder;
-          if (state.clientActiveOrder && state.clientActiveOrder.id === id) {
+          if (state.clientActiveOrder && state.clientActiveOrder.orderId === orderId) {
             updatedClientActiveOrder = { ...state.clientActiveOrder, status: newStatus };
             if (newStatus === 'Paid') { // Changed from Completed
               updatedClientActiveOrder.statusChangeTimestamp = new Date().toISOString();
@@ -45,7 +45,7 @@ export const useOrderStore = create(
           
           // Update client's order history
           const updatedClientOrderHistory = state.clientOrderHistory.map(order => {
-            if (order.id === id) {
+            if (order.orderId === orderId) {
               const updatedOrder = { ...order, status: newStatus };
               if (newStatus === 'Paid') { // Changed from Completed
                 updatedOrder.statusChangeTimestamp = new Date().toISOString();
@@ -68,7 +68,7 @@ export const useOrderStore = create(
         set(state => {
           let updatedClientActiveOrder = state.clientActiveOrder;
           if (state.clientActiveOrder) {
-            const newlyFoundOrder = updatedOrders.find(o => o.id === state.clientActiveOrder.id);
+            const newlyFoundOrder = updatedOrders.find(o => o.orderId === state.clientActiveOrder.orderId);
             if (newlyFoundOrder) {
               updatedClientActiveOrder = { ...state.clientActiveOrder, ...newlyFoundOrder };
             }
@@ -76,12 +76,12 @@ export const useOrderStore = create(
 
           // Find orders from the server that are relevant to this client's history
           const relevantServerOrders = updatedOrders.filter(serverOrder => 
-            state.clientOrderHistory.some(clientOrder => clientOrder.id === serverOrder.id)
+            state.clientOrderHistory.some(clientOrder => clientOrder.orderId === serverOrder.orderId)
           );
 
           // Smartly merge server data into client history to preserve client-side timestamps
           const newClientHistory = relevantServerOrders.map(serverOrder => {
-            const existingClientOrder = state.clientOrderHistory.find(co => co.id === serverOrder.id);
+            const existingClientOrder = state.clientOrderHistory.find(co => co.orderId === serverOrder.orderId);
             
             // Merge server data into the existing client order to get the most up-to-date info
             const mergedOrder = { ...existingClientOrder, ...serverOrder };
@@ -99,9 +99,9 @@ export const useOrderStore = create(
 
           // Make sure we don't have duplicates and the list is fresh
           const finalHistory = [...newClientHistory];
-          const existingIds = new Set(finalHistory.map(o => o.id));
+          const existingIds = new Set(finalHistory.map(o => o.orderId));
           state.clientOrderHistory.forEach(oldOrder => {
-            if (!existingIds.has(oldOrder.id)) {
+            if (!existingIds.has(oldOrder.orderId)) {
               finalHistory.push(oldOrder);
             }
           });
@@ -144,8 +144,8 @@ export const useOrderStore = create(
       resetClientOrderStatus: () => set({ clientActiveOrder: null }),
       
       // Retrieves an order by its ID from the admin's list
-      getOrderById: (id) => {
-        return get().orders.find(order => order.id === id);
+      getOrderById: (orderId) => {
+        return get().orders.find(order => order.orderId === orderId);
       },
           
       loginAdmin: () => set({ isAdminAuthenticated: true }),
