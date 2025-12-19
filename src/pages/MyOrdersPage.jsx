@@ -3,20 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import CountdownTimer from '../components/CountdownTimer.jsx';
 import { useOrderStore } from '../store/orderStore';
 
+const FIVE_MINUTES_IN_SECONDS = 5 * 60;
+
 // Helper function for status text (copied from MenuPage/App for now)
 const getStatusText = (status) => {
   switch (status) {
     case 'New': return 'Күтүүдө';
     case 'In Progress': return 'Даярдалууда';
     case 'Ready': return 'Даяр';
-    case 'Completed': return 'Аткарылды';
+    case 'Completed': return 'Төлөндү'; // Changed from 'Аткарылды' to 'Төлөндү'
     default: return status;
   }
 };
 
 function MyOrdersPage() {
   const navigate = useNavigate();
-  const clientOrderHistory = useOrderStore((state) => state.clientOrderHistory);
+  const { clientOrderHistory, clearExpiredOrders } = useOrderStore((state) => ({
+    clientOrderHistory: state.clientOrderHistory,
+    clearExpiredOrders: state.clearExpiredOrders,
+  }));
 
   // Get tableId from the most recent order.
   const lastTableId = clientOrderHistory[0]?.tableId;
@@ -59,39 +64,49 @@ function MyOrdersPage() {
 
 
       <div className="space-y-4">
-        {clientOrderHistory.map((order) => (
-          <div key={order.id} className="bg-white p-4 rounded-lg shadow-md border-l-4 border-cafe-primary">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-lg font-bold">Үстөл #{order.tableId}</h2>
-              <CountdownTimer timestamp={order.timestamp} />
+        {clientOrderHistory.map((order) => {
+          const isCompleted = order.status === 'Completed';
+          const completionTimestamp = isCompleted ? (order.statusChangeTimestamp || order.timestamp) : order.timestamp;
+
+          return (
+            <div key={order.id} className={`bg-white p-4 rounded-lg shadow-md border-l-4 ${isCompleted ? 'border-green-500' : 'border-cafe-primary'}`}>
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-lg font-bold">Үстөл #{order.tableId}</h2>
+                <CountdownTimer
+                  key={order.id} // Add key to force re-mount on status change
+                  timestamp={completionTimestamp}
+                  duration={isCompleted ? FIVE_MINUTES_IN_SECONDS : undefined} // 5 mins for completed, otherwise default
+                  onComplete={isCompleted ? clearExpiredOrders : undefined}
+                />
+              </div>
+              <p className="text-sm text-gray-700 mb-2">Статус: <span className="font-semibold">{getStatusText(order.status)}</span></p>
+              <ul className="space-y-2">
+                {order.items.map((item) => {
+                  const itemLineTotal = item.itemTotal ?? ((item.basePrice || 0) + (item.optionsPrice || 0)) * item.quantity;
+                  const singleItemPrice = (item.basePrice || 0) + (item.optionsPrice || 0);
+                  return (
+                    <li key={item.cartItemId || item.id} className="flex justify-between items-center text-sm text-gray-700">
+                      <div>
+                          <span className="font-semibold">{item.quantity} x {item.name}</span>
+                          <p className="text-xs text-gray-500 pl-2">
+                              Баасы: {singleItemPrice} сом
+                          </p>
+                      </div>
+                      <span className="font-bold">{itemLineTotal} сом</span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <hr className="my-2" />
+              <div className="text-right font-bold text-gray-800">
+                Жалпы: {order.items.reduce((total, item) => {
+                  const itemLineTotal = item.itemTotal ?? ((item.basePrice || 0) + (item.optionsPrice || 0)) * item.quantity;
+                  return total + itemLineTotal;
+                }, 0)} сом
+              </div>
             </div>
-            <p className="text-sm text-gray-700 mb-2">Статус: <span className="font-semibold">{getStatusText(order.status)}</span></p>
-            <ul className="space-y-2">
-              {order.items.map((item) => {
-                const itemLineTotal = item.itemTotal ?? ((item.basePrice || 0) + (item.optionsPrice || 0)) * item.quantity;
-                const singleItemPrice = (item.basePrice || 0) + (item.optionsPrice || 0);
-                return (
-                  <li key={item.cartItemId || item.id} className="flex justify-between items-center text-sm text-gray-700">
-                    <div>
-                        <span className="font-semibold">{item.quantity} x {item.name}</span>
-                        <p className="text-xs text-gray-500 pl-2">
-                            Баасы: {singleItemPrice} сом
-                        </p>
-                    </div>
-                    <span className="font-bold">{itemLineTotal} сом</span>
-                  </li>
-                );
-              })}
-            </ul>
-            <hr className="my-2" />
-            <div className="text-right font-bold text-gray-800">
-              Жалпы: {order.items.reduce((total, item) => {
-                const itemLineTotal = item.itemTotal ?? ((item.basePrice || 0) + (item.optionsPrice || 0)) * item.quantity;
-                return total + itemLineTotal;
-              }, 0)} сом
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

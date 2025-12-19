@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const DURATION = 2 * 60 * 60; // 2 hours in seconds
+const DURATION_DEFAULT = 24 * 60 * 60; // 24 hours in seconds
 
 const formatTime = (timeInSeconds) => {
   if (timeInSeconds <= 0) {
@@ -26,21 +26,37 @@ const getTimerColor = (timeInSeconds) => {
 };
 
 
-const CountdownTimer = ({ timestamp }) => {
+const CountdownTimer = ({ timestamp, duration = DURATION_DEFAULT, onComplete }) => {
   const calculateRemaining = () => {
     const elapsed = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
-    return DURATION - elapsed;
+    return duration - elapsed;
   };
 
   const [remaining, setRemaining] = useState(calculateRemaining());
 
   useEffect(() => {
+    if (remaining <= 0) {
+      if (onComplete) {
+        onComplete();
+      }
+      return;
+    }
+
     const interval = setInterval(() => {
-      setRemaining(calculateRemaining());
+      setRemaining(prevRemaining => {
+        const newRemaining = prevRemaining - 1;
+        if (newRemaining <= 0) {
+          clearInterval(interval);
+          if (onComplete) {
+            onComplete();
+          }
+        }
+        return newRemaining;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timestamp]);
+  }, [timestamp, onComplete, remaining]);
 
   if (remaining <= 0) {
     return (
