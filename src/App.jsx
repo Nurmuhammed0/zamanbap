@@ -80,7 +80,7 @@ function App() {
           break;
         
         case 'order_updated': // Бул эски, бирок кардар үчүн калтырылды
-          useOrderStore.getState().updateOrderStatus(data.payload.orderId, data.payload.newStatus);
+          useOrderStore.getState().updateOrderStatus(data.payload.id, data.payload.newStatus);
           break;
       }
     };
@@ -103,12 +103,14 @@ function App() {
 
 function MainAppContent() {
   const isAdminAuthenticated = useOrderStore((state) => state.isAdminAuthenticated);
-  const { clientOrderId, clientOrderStatus, resetClientOrderStatus } = useOrderStore(state => ({
-    clientOrderId: state.clientOrderId,
-    clientOrderStatus: state.clientOrderStatus,
+  const { clientActiveOrder, resetClientOrderStatus } = useOrderStore(state => ({
+    clientActiveOrder: state.clientActiveOrder,
     resetClientOrderStatus: state.resetClientOrderStatus,
   }));
   const navigate = useNavigate();
+
+  const activeOrderId = clientActiveOrder?.id;
+  const activeOrderStatus = clientActiveOrder?.status;
 
   // Статус баннерин жабуу функциясы
   const handleCloseStatus = () => {
@@ -119,9 +121,9 @@ function MainAppContent() {
   return (
     <>
       {/* Клиенттин буйрутмасынын статусун көрсөтүүчү баннер */}
-      {clientOrderId && clientOrderStatus && (
-        <div className={`fixed top-0 left-0 w-full p-3 text-white text-center font-bold text-lg z-50 flex justify-between items-center ${getStatusClasses(clientOrderStatus)}`}>
-          <span>Буйрутма №{clientOrderId.slice(0, 4)}...: {getStatusText(clientOrderStatus)}</span>
+      {activeOrderId && activeOrderStatus && (
+        <div className={`fixed top-0 left-0 w-full p-3 text-white text-center font-bold text-lg z-50 flex justify-between items-center ${getStatusClasses(activeOrderStatus)}`}>
+          <span>Буйрутма №{activeOrderId.slice(0, 4)}...: {getStatusText(activeOrderStatus)}</span>
           <button onClick={handleCloseStatus} className="text-white text-xl ml-4">&times;</button>
         </div>
       )}

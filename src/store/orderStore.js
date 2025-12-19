@@ -27,16 +27,16 @@ export const useOrderStore = create(
       },
       
       // Updates the status of orders
-      updateOrderStatus: (orderId, newStatus) => {
+      updateOrderStatus: (id, newStatus) => {
         set(state => {
           // Update admin-facing list
           const updatedOrders = state.orders.map(order => 
-            order.orderId === orderId ? { ...order, status: newStatus } : order
+            order.id === id ? { ...order, status: newStatus } : order
           );
           
           // Update client's active order if it matches
           let updatedClientActiveOrder = state.clientActiveOrder;
-          if (state.clientActiveOrder && state.clientActiveOrder.orderId === orderId) {
+          if (state.clientActiveOrder && state.clientActiveOrder.id === id) {
             updatedClientActiveOrder = { ...state.clientActiveOrder, status: newStatus };
             if (newStatus === 'Paid') { // Changed from Completed
               updatedClientActiveOrder.statusChangeTimestamp = new Date().toISOString();
@@ -45,7 +45,7 @@ export const useOrderStore = create(
           
           // Update client's order history
           const updatedClientOrderHistory = state.clientOrderHistory.map(order => {
-            if (order.orderId === orderId) {
+            if (order.id === id) {
               const updatedOrder = { ...order, status: newStatus };
               if (newStatus === 'Paid') { // Changed from Completed
                 updatedOrder.statusChangeTimestamp = new Date().toISOString();
@@ -68,26 +68,49 @@ export const useOrderStore = create(
         set(state => {
           let updatedClientActiveOrder = state.clientActiveOrder;
           if (state.clientActiveOrder) {
-            const newlyFoundOrder = updatedOrders.find(o => o.orderId === state.clientActiveOrder.orderId);
+            const newlyFoundOrder = updatedOrders.find(o => o.id === state.clientActiveOrder.id);
             if (newlyFoundOrder) {
-              updatedClientActiveOrder = newlyFoundOrder;
-            } else {
-              // The active order was completed and archived on the server, so clear it
-              updatedClientActiveOrder = null;
+              updatedClientActiveOrder = { ...state.clientActiveOrder, ...newlyFoundOrder };
             }
           }
 
-          // Filter updatedOrders to keep only those relevant to this client's history or active order.
-          // This ensures that new properties like statusChangeTimestamp from the server are included.
-          const relevantClientOrders = updatedOrders.filter(serverOrder => 
-            state.clientOrderHistory.some(clientOrder => clientOrder.orderId === serverOrder.orderId) ||
-            (state.clientActiveOrder && state.clientActiveOrder.orderId === serverOrder.orderId)
+          // Find orders from the server that are relevant to this client's history
+          const relevantServerOrders = updatedOrders.filter(serverOrder => 
+            state.clientOrderHistory.some(clientOrder => clientOrder.id === serverOrder.id)
           );
+
+          // Smartly merge server data into client history to preserve client-side timestamps
+          const newClientHistory = relevantServerOrders.map(serverOrder => {
+            const existingClientOrder = state.clientOrderHistory.find(co => co.id === serverOrder.id);
+            
+            // Merge server data into the existing client order to get the most up-to-date info
+            const mergedOrder = { ...existingClientOrder, ...serverOrder };
+
+            // If the order is now 'Paid', ensure it has a timestamp
+            if (mergedOrder.status === 'Paid') {
+              // If it just became 'Paid' or is missing a timestamp, add one.
+              // If it already had one (from `updateOrderStatus`), this preserves it.
+              if (!mergedOrder.statusChangeTimestamp) {
+                mergedOrder.statusChangeTimestamp = new Date().toISOString();
+              }
+            }
+            return mergedOrder;
+          });
+
+          // Make sure we don't have duplicates and the list is fresh
+          const finalHistory = [...newClientHistory];
+          const existingIds = new Set(finalHistory.map(o => o.id));
+          state.clientOrderHistory.forEach(oldOrder => {
+            if (!existingIds.has(oldOrder.id)) {
+              finalHistory.push(oldOrder);
+            }
+          });
+
 
           return {
             orders: updatedOrders, // for admin
             clientActiveOrder: updatedClientActiveOrder,
-            clientOrderHistory: relevantClientOrders, // Use the filtered server list directly
+            clientOrderHistory: finalHistory, 
           };
         });
       },
@@ -121,8 +144,8 @@ export const useOrderStore = create(
       resetClientOrderStatus: () => set({ clientActiveOrder: null }),
       
       // Retrieves an order by its ID from the admin's list
-      getOrderById: (orderId) => {
-        return get().orders.find(order => order.orderId === orderId);
+      getOrderById: (id) => {
+        return get().orders.find(order => order.id === id);
       },
           
       loginAdmin: () => set({ isAdminAuthenticated: true }),
