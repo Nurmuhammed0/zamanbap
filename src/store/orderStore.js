@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import localforage from 'localforage';
 
-const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
+const TWENTY_FOUR_HOURS_IN_MS = 24 * 60 * 60 * 1000;
 
 export const useOrderStore = create(
   persist(
@@ -131,8 +131,8 @@ export const useOrderStore = create(
               return false; 
             }
 
-            // Check if 5 minutes have passed since payment.
-            const isExpired = now - new Date(order.statusChangeTimestamp) >= FIVE_MINUTES_IN_MS;
+            // Check if 24 hours have passed since payment.
+            const isExpired = now - new Date(order.statusChangeTimestamp) >= TWENTY_FOUR_HOURS_IN_MS;
             return !isExpired; // Keep if not expired, remove if expired.
           });
           return { clientOrderHistory: freshOrders };

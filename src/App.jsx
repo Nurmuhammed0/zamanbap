@@ -120,13 +120,7 @@ function MainAppContent() {
 
   return (
     <>
-      {/* Клиенттин буйрутмасынын статусун көрсөтүүчү баннер */}
-      {activeOrderId && activeOrderStatus && (
-        <div className={`fixed top-0 left-0 w-full p-3 text-white text-center font-bold text-lg z-50 flex justify-between items-center ${getStatusClasses(activeOrderStatus)}`}>
-          <span>Буйрутма №{activeOrderId.slice(0, 8)}...: {getStatusText(activeOrderStatus)}</span>
-          <button onClick={handleCloseStatus} className="text-white text-xl ml-4">&times;</button>
-        </div>
-      )}
+      {/* Клиенттин буйрутмасынын статусун көрсөтүүчү баннер алынып салынды */}
 
       {/* Main Routes */}
       <Routes>

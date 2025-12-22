@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, Link, NavLink } from 'react-router-dom';
 import { useOrderStore } from '../../store/orderStore';
+import Logo from '../Logo'; // Import the new Logo component
 
 function AdminLayout() {
   const logoutAdmin = useOrderStore((state) => state.logoutAdmin);
@@ -12,7 +13,7 @@ function AdminLayout() {
   const SidebarContent = () => (
     <>
       <div className="flex items-center justify-center mb-6">
-        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+        <Logo className="w-10 h-10 text-cafe-accent" />
         <h1 className="text-2xl font-bold text-white ml-2">Заманбап</h1>
       </div>
       <nav className="flex-1">
