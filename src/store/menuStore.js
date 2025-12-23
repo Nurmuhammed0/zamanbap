@@ -45,6 +45,11 @@ export const useMenuStore = create(
             tables: [...state.tables, newTable]
         }));
       },
+      deleteTable: (tableId) => {
+        set((state) => ({
+            tables: state.tables.filter(table => table.id !== tableId)
+        }));
+      },
       addCategory: (newCategory) =>
         set((state) => ({
           categories: [...state.categories, { id: `cat-${Date.now()}`, ...newCategory }],

@@ -20,8 +20,9 @@ const QrCodeToPrint = React.forwardRef(({ table }, ref) => {
 
 
 function TableManagerPage() {
-    const { tables, addTable } = useMenuStore();
+    const { tables, addTable, deleteTable } = useMenuStore(); // Import deleteTable
     const [tableNumber, setTableNumber] = useState('');
+    const [isEditing, setIsEditing] = useState(false); // New state for editing mode
     
     const componentToPrintRef = useRef();
     const [selectedTableForPrint, setSelectedTableForPrint] = useState(null);
@@ -45,6 +46,12 @@ function TableManagerPage() {
             setTableNumber('');
         } else {
             alert("Бул номердеги үстөл мурунтан эле бар же номер туура эмес.");
+        }
+    };
+
+    const handleDeleteTable = (tableId) => {
+        if (window.confirm("Чын эле бул үстөлдү өчүргүңүз келеби?")) {
+            deleteTable(tableId);
         }
     };
 
@@ -80,10 +87,29 @@ function TableManagerPage() {
 
             {/* Tables List */}
             <div className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-bold mb-4">Кафедеги үстөлдөр ({tables.length})</h2>
+                <div className="flex justify-between items-center mb-4"> {/* Moved button here */}
+                    <h2 className="text-xl font-bold">Кафедеги үстөлдөр ({tables.length})</h2>
+                    <button
+                        onClick={() => setIsEditing(!isEditing)}
+                        className={`px-4 py-2 font-semibold rounded-lg ${isEditing ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'}`}
+                    >
+                        {isEditing ? 'Бүттү' : 'Оңдоо'}
+                    </button>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {tables.map(table => (
-                        <div key={table.id} className="p-4 border rounded-lg text-center shadow">
+                        <div key={table.id} className="p-4 border rounded-lg text-center shadow relative"> {/* Added relative for delete button positioning */}
+                            {isEditing && (
+                                <button
+                                    onClick={() => handleDeleteTable(table.id)}
+                                    className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 leading-none text-sm"
+                                    aria-label="Delete table"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            )}
                             <h3 className="text-2xl font-bold mb-2">Үстөл №{table.number}</h3>
                             <div className="flex justify-center my-4">
                                 <QRCodeSVG value={getTableQrUrl(table.number)} size={150} level="L" />
