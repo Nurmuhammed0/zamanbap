@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useOrderStore } from '../../store/orderStore';
 
 function LoginPage() {
-    const [email, setEmail] = useState('');
+    const [cafeName, setCafeName] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false); // New state for password visibility
     const [error, setError] = useState('');
@@ -15,11 +15,11 @@ function LoginPage() {
         const storedUserData = localStorage.getItem('userData');
         if (storedUserData) {
             const userData = JSON.parse(storedUserData);
-            if (userData.email === email && userData.password === password) {
+            if (userData.cafeName === cafeName && userData.password === password) {
                 loginAdmin();
                 navigate('/admin/dashboard');
             } else {
-                setError('Электрондук почта же пароль туура эмес');
+                setError('Кафенин аты же пароль туура эмес');
             }
         } else {
             // Redirect to registration if no user is found, as this is for the admin
@@ -38,11 +38,11 @@ function LoginPage() {
                 {error && <p className="text-sm text-center text-red-500">{error}</p>}
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-600">Электрондук почта</label>
+                        <label className="block mb-2 text-sm font-medium text-gray-600">Кафенин аты</label>
                         <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            type="text"
+                            value={cafeName}
+                            onChange={(e) => setCafeName(e.target.value)}
                             required
                             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />

@@ -5,6 +5,7 @@ import './lib/socket'; // WebSocket туташуусун баштоо үчүн �
 // Дүкөндөрдү жана баракчаларды импорттоо
 import { useOrderStore } from './store/orderStore';
 import { useMenuStore } from './store/menuStore'; // Меню дүкөнүн импорттоо
+import { useCafeStore } from './store/cafeStore'; // Кафе дүкөнүн импорттоо
 import AdminLayout from './components/layout/AdminLayout';
 import CartPage from './features/cart/CartPage';
 import OrderStatusPage from './features/order-tracking/OrderStatusPage';
@@ -57,6 +58,10 @@ function App() {
       // Серверден келген маалыматтын түрүнө жараша тиешелүү store'ду жаңылайбыз
       // Кодду окууга ыңгайлуу болуш үчүн "if" ордуна "switch" колдонобуз
       switch (data.type) {
+        // --- Кафе жөнүндө маалымат ---
+        case 'cafe_info_updated':
+          useCafeStore.getState().setCafeName(data.payload.name);
+          break;
         // --- Менюну башкаруу ---
         case 'initial_menu':
         case 'menu_updated':

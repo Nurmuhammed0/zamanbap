@@ -1,15 +1,51 @@
-// Бул жөнөкөй WebSocket-сервер.
-// Ал буйрутмаларды жана менюну эсинде сактап, бардык туташкан түзмөктөргө (кардар, админ) таратып турат.
-
 import { WebSocketServer } from 'ws';
 import http from 'http';
 import os from 'os';
+import fs from 'fs/promises'; // For asynchronous file operations
+import path from 'path';      // For path manipulation
+import { fileURLToPath } from 'url'; // To get __dirname in ES modules
+
+// __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const CAFE_INFO_FILE = path.join(__dirname, 'cafe.json');
 
 const PORT = process.env.PORT || 8080;
 const wss = new WebSocketServer({ port: PORT, host: '0.0.0.0' });
 
 // --- Маалыматтар базасы (in-memory) ---
 let orders = [];
+let cafeInfo = { name: 'Smart Cafe' }; // Default value
+
+// Function to load cafe info from file
+async function loadCafeInfo() {
+  try {
+    const data = await fs.readFile(CAFE_INFO_FILE, 'utf8');
+    cafeInfo = JSON.parse(data);
+    console.log('Cafe info loaded from file:', cafeInfo);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      console.log('Cafe info file not found, creating with default.');
+      await saveCafeInfo(); // Create the file with default info
+    } else {
+      console.error('Error loading cafe info:', error);
+    }
+  }
+}
+
+// Function to save cafe info to file
+async function saveCafeInfo() {
+  try {
+    await fs.writeFile(CAFE_INFO_FILE, JSON.stringify(cafeInfo, null, 2), 'utf8');
+    console.log('Cafe info saved to file.');
+  } catch (error) {
+    console.error('Error saving cafe info:', error);
+  }
+}
+
+// Load cafe info on startup
+loadCafeInfo();
 
 // Меню эми localStorage'да эмес, ушул жерде, сервердин эсинде сакталат.
 let menu = {
@@ -173,6 +209,8 @@ wss.on('connection', (ws) => {
   // Жаңы туташкан клиентке дароо эле учурдагы бардык маалыматтарды жөнөтөбүз.
   ws.send(JSON.stringify({ type: 'initial_orders', payload: orders }));
   ws.send(JSON.stringify({ type: 'initial_menu', payload: menu }));
+  ws.send(JSON.stringify({ type: 'cafe_info_updated', payload: cafeInfo }));
+
 
   // Клиенттен маалымат келгенде...
   ws.on('message', (message) => {
@@ -182,12 +220,22 @@ wss.on('connection', (ws) => {
 
       // --- Буйрутмаларды башкаруу ---
       switch (data.type) {
+        case 'update_cafe_name': {
+          if (data.payload && typeof data.payload.name === 'string') {
+            cafeInfo.name = data.payload.name;
+            console.log(`Cafe name updated to: ${cafeInfo.name}`);
+            saveCafeInfo(); // Save to file after update
+            broadcast({ type: 'cafe_info_updated', payload: cafeInfo });
+          }
+          break;
+        }
         case 'new_order': {
           const newOrder = {
               ...data.payload,
               orderId: `order-${Date.now()}`, // 'orderId' for client consistency
               timestamp: new Date().toISOString(),
               status: 'New',
+              cafeName: cafeInfo.name,
           };
           orders.push(newOrder);
           // Буйрутма берген клиентке гана ийгиликтүү түзүлгөнүн билдиребиз

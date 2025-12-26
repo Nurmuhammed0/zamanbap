@@ -43,7 +43,6 @@ function MyOrdersPage() {
     clientOrderHistory: state.clientOrderHistory,
     clearExpiredOrders: state.clearExpiredOrders,
   }));
-  const cafeName = localStorage.getItem('cafeName') || 'Smart Cafe'; // Fetch cafe name
 
   // Get tableId from the most recent order.
   const lastTableId = clientOrderHistory[0]?.tableId;
@@ -76,7 +75,7 @@ function MyOrdersPage() {
         </div>
         <div className="relative z-10">
           <div className="text-center mb-6">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-2">{cafeName}</h2>
+            {cafeName && <h2 className="text-3xl font-extrabold text-gray-900 mb-2">{cafeName}</h2>}
             <p className="text-sm text-gray-600">ZamanBap</p>
             <p className="text-sm text-gray-600">{formattedDate} {formattedTime}</p>
           </div>
@@ -155,7 +154,7 @@ function MyOrdersPage() {
           const isPaid = order.status === 'Paid';
           
           if (isPaid) {
-            return <PaidOrderReceipt key={order.id} order={order} onComplete={clearExpiredOrders} cafeName={cafeName} />;
+            return <PaidOrderReceipt key={order.id} order={order} onComplete={clearExpiredOrders} cafeName={order.cafeName} />;
           }
 
           return (

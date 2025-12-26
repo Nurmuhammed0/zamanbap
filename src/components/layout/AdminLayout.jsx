@@ -5,10 +5,15 @@ import Logo from '../Logo'; // Import the new Logo component
 
 function AdminLayout() {
   const logoutAdmin = useOrderStore((state) => state.logoutAdmin);
+  const orders = useOrderStore((state) => state.orders);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const activeLinkClass = "bg-cafe-primary text-white";
   const inactiveLinkClass = "hover:bg-gray-700 hover:text-white";
+
+  // --- Counter Logic ---
+  const ordersCount = orders.filter(o => ['New', 'In Progress', 'Ready'].includes(o.status)).length;
+  const cashierCount = orders.filter(o => o.status === 'Completed').length;
 
   const SidebarContent = () => (
     <>
@@ -25,15 +30,29 @@ function AdminLayout() {
             </NavLink>
           </li>
           <li className="mb-2">
-            <NavLink to="/admin/orders" className={({ isActive }) => `block p-2 rounded ${isActive ? activeLinkClass : inactiveLinkClass} flex items-center space-x-3`} onClick={() => setSidebarOpen(false)}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-              <span>Буйрутмалар</span>
+            <NavLink to="/admin/orders" className={({ isActive }) => `block p-2 rounded ${isActive ? activeLinkClass : inactiveLinkClass} flex items-center justify-between space-x-3`} onClick={() => setSidebarOpen(false)}>
+              <div className="flex items-center space-x-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                <span>Буйрутмалар</span>
+              </div>
+              {ordersCount > 0 && (
+                <span className="bg-blue-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
+                  {ordersCount}
+                </span>
+              )}
             </NavLink>
           </li>
           <li className="mb-2">
-            <NavLink to="/admin/cashier" className={({ isActive }) => `block p-2 rounded ${isActive ? activeLinkClass : inactiveLinkClass} flex items-center space-x-3`} onClick={() => setSidebarOpen(false)}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" /></svg>
-              <span>Касса</span>
+            <NavLink to="/admin/cashier" className={({ isActive }) => `block p-2 rounded ${isActive ? activeLinkClass : inactiveLinkClass} flex items-center justify-between space-x-3`} onClick={() => setSidebarOpen(false)}>
+              <div className="flex items-center space-x-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" /></svg>
+                <span>Касса</span>
+              </div>
+              {cashierCount > 0 && (
+                <span className="bg-green-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
+                  {cashierCount}
+                </span>
+              )}
             </NavLink>
           </li>
           <li className="mb-2">

@@ -1,18 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useOrderStore } from '../../store/orderStore';
 
 function OrderStatusPage() {
     const { orderId } = useParams();
     const navigate = useNavigate();
-    const [cafeName, setCafeName] = useState('');
-
-    useEffect(() => {
-        const storedCafeName = localStorage.getItem('cafeName');
-        if (storedCafeName) {
-            setCafeName(storedCafeName);
-        }
-    }, []);
     
     // getOrderById селекторун колдонуп, керектүү буйрутманы түз алабыз
     const order = useOrderStore(state => state.orders.find(o => o.id === orderId));
@@ -54,7 +46,7 @@ function OrderStatusPage() {
             <div className="w-full max-w-md bg-white rounded-xl shadow-lg my-8 p-6 font-sans">
                 {/* Header */}
                 <div className="text-center mb-6">
-                    {cafeName && <p className="text-xl font-bold text-gray-800 mb-2">{cafeName}</p>}
+                    {order.cafeName && <p className="text-xl font-bold text-gray-800 mb-2">{order.cafeName}</p>}
                     <h1 className="text-2xl font-bold text-gray-800">Сиздин буйрутмаңыз</h1>
                     <p className="text-gray-500 text-sm">(Дүмүрчөк)</p>
                 </div>
