@@ -33,6 +33,12 @@ export const useCartStore = create(
           );
         } else {
           const optionsPrice = selectedOptions.reduce((sum, opt) => sum + (opt.priceModifier || 0), 0);
+          
+          // Determine the correct price to use, prioritizing the promotion price
+          const effectivePrice = (itemToAdd.promotionPrice && itemToAdd.promotionPrice > 0) 
+            ? itemToAdd.promotionPrice 
+            : itemToAdd.price;
+
           const newItem = {
             cartItemId: `cart-item-${Date.now()}`,
             id: itemToAdd.id,
@@ -40,9 +46,10 @@ export const useCartStore = create(
             imageUrl: itemToAdd.imageUrl,
             quantity,
             selectedOptions,
-            basePrice: itemToAdd.price,
+            basePrice: effectivePrice, // Use the effective price
             optionsPrice: optionsPrice,
-            itemTotal: (itemToAdd.price + optionsPrice) * quantity,
+            itemTotal: (effectivePrice + optionsPrice) * quantity,
+            originalPrice: itemToAdd.price, // Store original price for reference
           };
           updatedItems = [...items, newItem];
         }

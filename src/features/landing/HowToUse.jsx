@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 
 function HowToUse() {
     return (
-        <section id="how-to-use" className="py-20 bg-cafe-background">
+        <section id="how-to-use" className="py-10 bg-cafe-background">
             <div className="container mx-auto px-6">
-                <h3 className="text-3xl font-bold text-center mb-12 text-gray-800">Кантип колдонсо болот?</h3>
+                <h3 className="text-3xl font-bold text-center mb-6 text-gray-800">Кантип колдонсо болот?</h3>
                 <div className="max-w-4xl mx-auto space-y-8">
                     <div className="flex items-center space-x-4 bg-white shadow-md rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
                         <div className="flex-shrink-0 w-12 h-12 bg-cafe-primary text-white rounded-full flex items-center justify-center font-bold text-2xl shadow-md">1</div>
