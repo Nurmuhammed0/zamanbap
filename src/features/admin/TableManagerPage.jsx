@@ -60,6 +60,27 @@ function TableManagerPage() {
         return `${baseUrl}/?table=${number}`;
     };
 
+    const handleDownloadSVG = (table) => {
+        const svgElement = document.getElementById(`qr-code-svg-${table.id}`);
+        if (!svgElement) {
+            console.error('SVG element not found for table:', table.id);
+            return;
+        }
+    
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svgElement);
+    
+        const blob = new Blob([svgString], { type: 'image/svg+xml' });
+    
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `table-${table.number}-qrcode.svg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    };
+
     return (
         <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-6">Үстөлдөрдү башкаруу</h1>
@@ -112,14 +133,22 @@ function TableManagerPage() {
                             )}
                             <h3 className="text-2xl font-bold mb-2">Үстөл №{table.number}</h3>
                             <div className="flex justify-center my-4">
-                                <QRCodeSVG value={getTableQrUrl(table.number)} size={150} level="L" />
+                                <QRCodeSVG id={`qr-code-svg-${table.id}`} value={getTableQrUrl(table.number)} size={150} level="L" />
                             </div>
-                            <button
-                                onClick={() => triggerPrint(table)}
-                                className="w-full px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600"
-                            >
-                                Басып чыгаруу
-                            </button>
+                            <div className="flex flex-col space-y-2">
+                                <button
+                                    onClick={() => triggerPrint(table)}
+                                    className="w-full px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600"
+                                >
+                                    Басып чыгаруу
+                                </button>
+                                <button
+                                    onClick={() => handleDownloadSVG(table)}
+                                    className="w-full px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700"
+                                >
+                                    SVG көчүрүү
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>

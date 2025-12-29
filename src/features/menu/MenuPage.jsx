@@ -256,7 +256,12 @@ function MenuPage() {
       {/* Menu Items */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredItems.map((item) => (
-          <div key={item.id} className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+          <div key={item.id} className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col relative">
+            {item.promotionPrice && item.promotionPrice > 0 && (
+              <div className="absolute top-0 right-0 bg-red-600 text-white text-sm font-bold px-3 py-1 rounded-bl-xl z-10">
+                -{Math.round((1 - item.promotionPrice / item.price) * 100)}%
+              </div>
+            )}
             <img 
               src={item.imageUrl} 
               alt={item.name} 
@@ -267,7 +272,16 @@ function MenuPage() {
               <h3 className="text-xl font-bold text-gray-800">{item.name}</h3>
               <p className="text-gray-600 mt-1 flex-1">{item.description}</p>
               <div className="flex justify-between items-center mt-4">
-                <span className="text-2xl font-bold text-gray-900">{item.price} сом</span>
+                <div className="flex flex-col">
+                  {item.promotionPrice && item.promotionPrice > 0 ? (
+                    <>
+                      <span className="text-base text-gray-500 line-through">{item.price} сом</span>
+                      <span className="text-2xl font-bold text-red-600">{item.promotionPrice} сом</span>
+                    </>
+                  ) : (
+                    <span className="text-2xl font-bold text-gray-900">{item.price} сом</span>
+                  )}
+                </div>
                 <button
                   onClick={() => addToCart(item, 1)}
                   className="bg-cafe-accent text-white font-bold py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors flex items-center space-x-2"
