@@ -34,7 +34,7 @@ function HeroSlider() {
     ];
 
     return (
-        <section id="hero" className="w-full h-[100vh]">
+        <section id="hero" className="w-full h-[60vh] md:h-[80vh] lg:h-[90vh] max-h-[800px]">
             <Swiper
                 modules={[Navigation, Pagination, Autoplay]}
                 spaceBetween={0}
