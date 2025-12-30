@@ -41,7 +41,7 @@ function LandingPage() {
             <Snowfall />
             <Header onScroll={handleScroll} />
             <main>
-                <HeroSlider />
+                <HeroSlider className="mt-16" />
                 <div ref={refs.features}>
                     <Features />
                 </div>

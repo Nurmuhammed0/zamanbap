@@ -69,13 +69,13 @@ function Gallery() {
         >
             <div 
                 className={`bg-white rounded-xl shadow-2xl w-full flex flex-col md:flex-row transition-transform duration-300 ${isModalVisible ? 'scale-100' : 'scale-95'}`}
-                style={{maxWidth: '1000px'}}
+                style={{maxWidth: '90vw', maxHeight: '90vh'}}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="w-full md:w-3/5 bg-gray-200 rounded-t-xl md:rounded-l-xl md:rounded-t-none flex items-center justify-center p-4">
-                    <img src={selectedImage?.src} alt={selectedImage?.title} className="max-h-[80vh] w-auto object-contain" />
+                <div className="w-full lg:w-3/4 bg-gray-200 rounded-t-xl md:rounded-l-xl md:rounded-t-none flex items-center justify-center p-4">
+                    <img src={selectedImage?.src} alt={selectedImage?.title} className="max-h-full w-auto object-contain" />
                 </div>
-                <div className="p-8 flex flex-col justify-center w-full md:w-2/5">
+                <div className="p-8 flex flex-col justify-center w-full lg:w-1/4 overflow-y-auto">
                     <h4 className="text-2xl font-bold text-gray-800 mb-3">{selectedImage?.title}</h4>
                     <p className="text-gray-600 leading-relaxed">{selectedImage?.description}</p>
                 </div>

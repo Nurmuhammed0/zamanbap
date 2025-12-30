@@ -7,30 +7,34 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
 
+import image9 from '../../assets/9img.jpeg';
+import image10 from '../../assets/10img.jpeg';
+import image11 from '../../assets/11img.jpeg';
+
 // import required modules
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
 function HeroSlider() {
     const slides = [
         {
-            image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2670',
+            image: image9,
             title: 'Инновациялык чечимдер',
             subtitle: 'Сиздин кафеңиз үчүн заманбап технологиялар.'
         },
         {
-            image: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=2670',
+            image: image10,
             title: 'Ыңгайлуу башкаруу',
             subtitle: 'Буйрутмаларды, менюну жана кардарларды оңой башкарыңыз.'
         },
         {
-            image: 'https://images.unsplash.com/photo-1578474846511-04ba529f0b88?q=80&w=2574',
+            image: image11,
             title: 'Кардарлардын ыраазычылыгы',
             subtitle: 'Тез жана ыңгайлуу тейлөө менен кардарларыңызды кубантыңыз.'
         }
     ];
 
     return (
-        <section id="hero" className="w-full h-[400px] sm:h-[500px] md:h-[600px]">
+        <section id="hero" className="w-full h-[100vh]">
             <Swiper
                 modules={[Navigation, Pagination, Autoplay]}
                 spaceBetween={0}
