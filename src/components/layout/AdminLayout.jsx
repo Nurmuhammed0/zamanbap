@@ -18,8 +18,8 @@ function AdminLayout() {
   const SidebarContent = () => (
     <>
       <div className="flex items-center justify-center mb-6">
-        <Logo className="w-10 h-10 text-cafe-accent" />
-        <h1 className="text-2xl font-bold text-white ml-2">Заманбап</h1>
+        <Logo className="w-12 h-12 text-cafe-accent" />
+        <h1 className="text-2xl font-bold text-white ml-3">Заманбап</h1>
       </div>
       <nav className="flex-1">
         <ul>

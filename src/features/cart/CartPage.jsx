@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCartStore } from './cart.store';
 import { useOrderStore } from '../../store/orderStore';
+import { useCafeStore } from '../../store/cafeStore'; // Import cafe store
 import { sendMessage } from '../../lib/socket';
 
 function CartPage() {
@@ -9,6 +10,7 @@ function CartPage() {
   // State
   const { items, tableId, updateQuantity, removeFromCart, getTotal, clearCart } = useCartStore();
   const clientActiveOrder = useOrderStore(state => state.clientActiveOrder);
+  const cafeName = useCafeStore(state => state.cafeName); // Get cafe name
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   // Effect to watch for order confirmation
@@ -36,6 +38,7 @@ function CartPage() {
       tableId: tableId,
       items: items.map(({ cartItemId, ...rest }) => rest), // Remove client-only properties
       totalAmount: getTotal(),
+      cafeName: cafeName, // Add cafe name to the payload
     };
 
     // Send the message. The useEffect above will handle the success case.

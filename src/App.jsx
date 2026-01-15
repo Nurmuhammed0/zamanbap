@@ -52,6 +52,12 @@ function App() {
     // Колдонмо жүктөлгөндө, 2 сааттан эски буйрутмаларды тазалайбыз
     useOrderStore.getState().clearExpiredOrders();
 
+    // Load cafe name from localStorage on startup
+    const savedCafeName = localStorage.getItem('cafeName');
+    if (savedCafeName) {
+      useCafeStore.getState().setCafeName(savedCafeName);
+    }
+
     const handleSocketMessage = (event) => {
       const data = event.detail;
       
@@ -59,7 +65,7 @@ function App() {
       // Кодду окууга ыңгайлуу болуш үчүн "if" ордуна "switch" колдонобуз
       switch (data.type) {
         // --- Кафе жөнүндө маалымат ---
-        case 'cafe_info_updated':
+        case 'update_cafe_name':
           useCafeStore.getState().setCafeName(data.payload.name);
           break;
         // --- Менюну башкаруу ---

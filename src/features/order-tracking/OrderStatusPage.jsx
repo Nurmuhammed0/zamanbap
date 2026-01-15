@@ -1,24 +1,34 @@
 import React, { useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useOrderStore } from '../../store/orderStore';
+import { useCafeStore } from '../../store/cafeStore'; // Import useCafeStore
+import Logo from '../../components/Logo'; // Import the Logo component
 
 function OrderStatusPage() {
     const { orderId } = useParams();
     const navigate = useNavigate();
     
-    // getOrderById селекторун колдонуп, керектүү буйрутманы түз алабыз
-    const order = useOrderStore(state => state.orders.find(o => o.id === orderId));
+    const cafeName = useCafeStore((state) => state.cafeName); // Get cafeName from useCafeStore
+    const order = useOrderStore(state => 
+        (state.clientActiveOrder && state.clientActiveOrder.id === orderId) 
+        ? state.clientActiveOrder 
+        : state.clientOrderHistory.find(o => o.id === orderId)
+    );
 
-    // Эгерде колдонуучу баракты жаңыласа жана store тазаланса, 
-    // WebSocket аркылуу маалымат келгенче күтүү керек болушу мүмкүн.
-    // Азырынча, эгер буйрутма жок болсо, негизги бетке багыттайбыз.
     useEffect(() => {
         if (!order) {
-            // Буйрутманы серверден сураган логиканы бул жерге кошсо болот.
-            // Азырынча жөн гана күтөбүз же ката билдирүүсүн көрсөтөбүз.
             console.log(`Order with ID ${orderId} not found in store.`);
         }
-    }, [order, orderId]);
+        // Set document title dynamically
+        if (cafeName) {
+            document.title = `${cafeName} - Буйрутма #${orderId ? orderId.slice(0, 8) : ''}`;
+        } else {
+            document.title = `Буйрутма #${orderId ? orderId.slice(0, 8) : ''}`;
+        }
+        return () => {
+            document.title = "Smart Cafe"; // Reset title on component unmount
+        };
+    }, [order, orderId, cafeName]);
 
     if (!order) {
         return (
@@ -46,7 +56,8 @@ function OrderStatusPage() {
             <div className="w-full max-w-md bg-white rounded-xl shadow-lg my-8 p-6 font-sans">
                 {/* Header */}
                 <div className="text-center mb-6">
-                    {order.cafeName && <p className="text-xl font-bold text-gray-800 mb-2">{order.cafeName}</p>}
+                    <Logo className="w-16 h-16 mx-auto mb-2" />
+                    <p className="text-xl font-bold text-gray-800 mb-2">{cafeName}</p>
                     <h1 className="text-2xl font-bold text-gray-800">Сиздин буйрутмаңыз</h1>
                     <p className="text-gray-500 text-sm">(Дүмүрчөк)</p>
                 </div>

@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
+import { useCafeStore } from '../../store/cafeStore';
 
 const DailyReport = ({ stats, onClose }) => {
   const { 
@@ -8,6 +9,8 @@ const DailyReport = ({ stats, onClose }) => {
     averageOrderValueToday, 
     popularItems 
   } = stats;
+  const cafeName = useCafeStore((state) => state.cafeName);
+
 
   const componentRef = useRef();
   const handlePrint = useReactToPrint({
@@ -28,6 +31,7 @@ const DailyReport = ({ stats, onClose }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 z-50 print:hidden">
       <div className="bg-white p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div ref={componentRef} className="w-full">
+          <h1 className="text-3xl print:text-2xl font-bold text-center mb-1 text-gray-900">{cafeName}</h1>
           <h2 className="text-2xl print:text-xl font-bold text-center mb-4 text-gray-800">Күндүк жыйынтык</h2>
           <p className="text-center text-sm mb-4 text-gray-600">Күн: {new Date().toLocaleDateString()}</p>
           
