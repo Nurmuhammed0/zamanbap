@@ -1,7 +1,7 @@
 import React from 'react';
 
 function HeroSlider() {
-    const logoAnimationPath = '/src/assets/logo-animation.mp4'; // Vite'те статикалык активдерге түз жол
+    const logoAnimationPath = '/logo-animation.mp4'; // 'public' папкасына түз шилтеме
 
     return (
         <section id="hero" className="relative w-full h-[60vh] md:h-[80vh] lg:h-[90vh] max-h-[800px] overflow-hidden bg-white">
