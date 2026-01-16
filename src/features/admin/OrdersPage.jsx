@@ -8,6 +8,7 @@ function OrdersPage() {
   const orders = useOrderStore((state) => state.orders);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDeleteMode, setDeleteMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (selectedOrder) {
@@ -28,28 +29,41 @@ function OrdersPage() {
     }
   };
 
-  const newOrders = orders.filter((o) => o.status === 'New').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  const inProgressOrders = orders.filter((o) => o.status === 'In Progress').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  const readyOrders = orders.filter((o) => o.status === 'Ready').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const filteredOrders = orders.filter(order =>
+    order.tableId.toString().includes(searchQuery)
+  );
+
+  const newOrders = filteredOrders.filter((o) => o.status === 'New').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const inProgressOrders = filteredOrders.filter((o) => o.status === 'In Progress').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const readyOrders = filteredOrders.filter((o) => o.status === 'Ready').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Буйрутмалар</h1>
-        <button
-          onClick={toggleDeleteMode}
-          className={`px-4 py-2 text-white font-semibold rounded-lg flex items-center space-x-2 shadow-md transform hover:scale-105 transition-all duration-200 ${
-            isDeleteMode ? 'bg-blue-500 hover:bg-blue-600' : 'bg-red-500 hover:bg-red-600'
-          }`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-            {isDeleteMode 
-              ? <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-              : <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.93a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m-1.022.165a48.108 48.108 0 01-3.478-.397m7.5 0v-.916c0-1.18-.91-2.14-2.046-2.14h-1.562M2.25 5.79h19.5" />
-            }
-          </svg>
-          <span>{isDeleteMode ? 'Артка' : 'Тазалоо'}</span>
-        </button>
+        <div className="flex items-center space-x-4">
+          <input
+            type="text"
+            placeholder="Үстөл боюнча издөө..."
+            className="px-4 py-2 border rounded-lg"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button
+            onClick={toggleDeleteMode}
+            className={`px-4 py-2 text-white font-semibold rounded-lg flex items-center space-x-2 shadow-md transform hover:scale-105 transition-all duration-200 ${
+              isDeleteMode ? 'bg-blue-500 hover:bg-blue-600' : 'bg-red-500 hover:bg-red-600'
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+              {isDeleteMode 
+                ? <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                : <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.93a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m-1.022.165a48.108 48.108 0 01-3.478-.397m7.5 0v-.916c0-1.18-.91-2.14-2.046-2.14h-1.562M2.25 5.79h19.5" />
+              }
+            </svg>
+            <span>{isDeleteMode ? 'Артка' : 'Тазалоо'}</span>
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

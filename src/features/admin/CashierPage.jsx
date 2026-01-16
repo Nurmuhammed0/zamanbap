@@ -96,13 +96,25 @@ const ReceiptModal = ({ order, onClose }) => {
 function CashierPage() {
   const orders = useOrderStore((state) => state.orders);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const completedOrders = orders.filter((o) => o.status === 'Completed').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const filteredOrders = orders.filter(order =>
+    order.tableId.toString().includes(searchQuery)
+  );
+
+  const completedOrders = filteredOrders.filter((o) => o.status === 'Completed').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Касса</h1>
+        <input
+          type="text"
+          placeholder="Үстөл боюнча издөө..."
+          className="px-4 py-2 border rounded-lg"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
       <div className="bg-gray-100 p-4 rounded-lg">
