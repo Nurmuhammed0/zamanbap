@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import image1 from '../../assets/1img.PNG';
 import image2 from '../../assets/2img.PNG';
 import image3 from '../../assets/3img.PNG';
@@ -21,16 +21,60 @@ const galleryData = [
 
 function Gallery() {
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const touchStartX = useRef(0);
+
+    const selectedImage = selectedImageIndex !== null ? galleryData[selectedImageIndex] : null;
+
+    const showNextImage = useCallback(() => {
+        if (selectedImageIndex !== null) {
+            setSelectedImageIndex((prevIndex) => (prevIndex + 1) % galleryData.length);
+        }
+    }, [selectedImageIndex]);
+
+    const showPrevImage = useCallback(() => {
+        if (selectedImageIndex !== null) {
+            setSelectedImageIndex((prevIndex) => (prevIndex - 1 + galleryData.length) % galleryData.length);
+        }
+    }, [selectedImageIndex]);
 
     useEffect(() => {
-        if (selectedImage) {
+        if (selectedImageIndex !== null) {
             setIsModalVisible(true);
+
+            const handleKeyDown = (e) => {
+                if (e.key === 'ArrowRight') {
+                    showNextImage();
+                } else if (e.key === 'ArrowLeft') {
+                    showPrevImage();
+                } else if (e.key === 'Escape') {
+                    setSelectedImageIndex(null);
+                }
+            };
+
+            window.addEventListener('keydown', handleKeyDown);
+            return () => window.removeEventListener('keydown', handleKeyDown);
+
         } else {
             setIsModalVisible(false);
         }
-    }, [selectedImage]);
+    }, [selectedImageIndex, showNextImage, showPrevImage]);
+    
+    const handleTouchStart = (e) => {
+        touchStartX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const swipeThreshold = 50; // minimum distance for a swipe
+        if (touchStartX.current - touchEndX > swipeThreshold) {
+            showNextImage();
+        } else if (touchEndX - touchStartX.current > swipeThreshold) {
+            showPrevImage();
+        }
+    };
+
 
     // --- Full Gallery Grid ---
     const FullGallery = () => (
@@ -46,8 +90,8 @@ function Gallery() {
                 {galleryData.map((image, index) => (
                     <div 
                         key={index} 
-                        className="group relative overflow-hidden rounded-lg shadow-lg cursor-pointer bg-slate-100" // Changed bg-slate-100 to bg-white
-                        onClick={() => setSelectedImage(image)}
+                        className="group relative overflow-hidden rounded-lg shadow-lg cursor-pointer bg-slate-100"
+                        onClick={() => setSelectedImageIndex(index)}
                     >
                         <img src={image.src} alt={image.title} className="w-full h-48 object-contain p-2 transition-transform duration-300 group-hover:scale-105" />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -62,26 +106,33 @@ function Gallery() {
     );
     
     // --- Image Modal ---
-    const ImageModal = () => (
+    const ImageModal = () => {
+      if (!selectedImage) return null;
+      
+      return (
         <div 
             className={`fixed inset-0 flex justify-center items-center z-50 p-4 transition-opacity duration-300 ${isModalVisible ? 'opacity-100 backdrop-blur-sm' : 'opacity-0 pointer-events-none'}`}
-            onClick={() => setSelectedImage(null)}
+            onClick={() => setSelectedImageIndex(null)}
         >
             <div 
-                className={`bg-white rounded-xl shadow-2xl w-full flex flex-col md:flex-row transition-transform duration-300 ${isModalVisible ? 'scale-100' : 'scale-95'}`}
+                className={`bg-white rounded-xl shadow-2xl w-full flex flex-col md:flex-row transition-transform duration-300 relative ${isModalVisible ? 'scale-100' : 'scale-95'}`}
                 style={{maxWidth: '90vw', maxHeight: '90vh'}}
                 onClick={(e) => e.stopPropagation()}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
             >
                 <div className="w-full lg:w-3/4 bg-gray-200 rounded-t-xl md:rounded-l-xl md:rounded-t-none flex items-center justify-center p-4">
-                    <img src={selectedImage?.src} alt={selectedImage?.title} className="max-h-full w-auto object-contain" />
+                    <img src={selectedImage.src} alt={selectedImage.title} className="max-h-full w-auto object-contain" />
                 </div>
                 <div className="p-8 flex flex-col justify-center w-full lg:w-1/4 overflow-y-auto">
-                    <h4 className="text-2xl font-bold text-gray-800 mb-3">{selectedImage?.title}</h4>
-                    <p className="text-gray-600 leading-relaxed">{selectedImage?.description}</p>
+                    <h4 className="text-2xl font-bold text-gray-800 mb-3">{selectedImage.title}</h4>
+                    <p className="text-gray-600 leading-relaxed">{selectedImage.description}</p>
                 </div>
+
+                {/* Close Button */}
                  <button
-                    onClick={() => setSelectedImage(null)}
-                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 transition-colors"
+                    onClick={() => setSelectedImageIndex(null)}
+                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 transition-colors z-10"
                     aria-label="Close modal"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8">
@@ -90,7 +141,8 @@ function Gallery() {
                 </button>
             </div>
         </div>
-    );
+      );
+    };
 
     // --- Image Stack ---
     const ImageStack = () => (
