@@ -50,6 +50,7 @@ export const useCartStore = create(
             optionsPrice: optionsPrice,
             itemTotal: (effectivePrice + optionsPrice) * quantity,
             originalPrice: itemToAdd.price, // Store original price for reference
+            cost: itemToAdd.cost || 0, // Add cost for profit calculation
           };
           updatedItems = [...items, newItem];
         }
