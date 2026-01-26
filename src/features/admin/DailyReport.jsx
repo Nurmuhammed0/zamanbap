@@ -18,28 +18,27 @@ const CustomDateInput = forwardRef(({ value, onClick }, ref) => (
 ));
 
 const DailyReport = forwardRef(({ stats }, ref) => {
-  const { 
-    totalSalesToday, 
-    totalOrdersToday, 
-    totalProfitToday,
-    popularItems 
-  } = stats;
   const cafeName = useCafeStore((state) => state.cafeName);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  // Placeholder data for reports based on selected date
-  const getReportDataForDate = (date) => {
-    // In a real application, you would fetch data from a backend based on the selected date.
-    // For now, we return empty/placeholder data.
-    return {
-      totalSales: 0,
-      totalProfit: 0,
-      totalOrders: 0,
-      popularItems: []
-    };
+  // Helper to check if two dates are the same day (ignoring time)
+  const isSameDay = (d1, d2) => {
+    return d1.getFullYear() === d2.getFullYear() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getDate() === d2.getDate();
   };
 
-  const reportData = getReportDataForDate(selectedDate);
+  const today = new Date();
+  const isTodaySelected = isSameDay(selectedDate, today);
+
+  const reportData = isTodaySelected
+    ? stats
+    : {
+        totalSalesToday: 0,
+        totalProfitToday: 0,
+        totalOrdersToday: 0,
+        popularItems: []
+      };
 
   return (
     <div ref={ref} className="p-6 md:p-8 w-full">
@@ -63,15 +62,15 @@ const DailyReport = forwardRef(({ stats }, ref) => {
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-4 text-center">
         <div className="p-2 bg-gray-100 rounded print:border print:bg-transparent">
           <p className="text-xs text-gray-600">Жалпы сатуулар</p>
-          <p className="text-lg print:text-base font-bold text-gray-900">{reportData.totalSales.toLocaleString()} сом</p>
+          <p className="text-lg print:text-base font-bold text-gray-900">{reportData.totalSalesToday.toLocaleString()} сом</p>
         </div>
         <div className="p-2 bg-green-100 rounded print:border print:bg-transparent">
           <p className="text-xs text-green-800">Жалпы пайда</p>
-          <p className="text-lg print:text-base font-bold text-green-900">{reportData.totalProfit.toLocaleString()} сом</p>
+          <p className="text-lg print:text-base font-bold text-green-900">{reportData.totalProfitToday.toLocaleString()} сом</p>
         </div>
         <div className="p-2 bg-gray-100 rounded print:border print:bg-transparent">
           <p className="text-xs text-gray-600">Буйрутмалар саны</p>
-          <p className="text-lg print:text-base font-bold text-gray-900">{reportData.totalOrders}</p>
+          <p className="text-lg print:text-base font-bold text-gray-900">{reportData.totalOrdersToday}</p>
         </div>
         <div className="p-2 bg-gray-100 rounded print:border print:bg-transparent">
           <p className="text-xs text-gray-600">Эң көп сатылган</p>

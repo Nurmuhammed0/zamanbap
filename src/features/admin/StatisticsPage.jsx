@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react'; // Add useCallback
 import { useReactToPrint } from 'react-to-print';
 import DailyReport from './DailyReport';
 import WeeklyReport from './WeeklyReport';
@@ -10,44 +10,23 @@ function StatisticsPage() {
   const [activeReport, setActiveReport] = useState(null); // 'daily', 'weekly', 'monthly', or null
   const { orders } = useOrderStore();
   const { items: menuItems } = useMenuStore();
-  const reportContentRef = useRef();
+  const reportContentRef = useRef(); // Ref for the entire report component instance
 
   const handlePrint = useReactToPrint({
     content: () => reportContentRef.current,
     documentTitle: `SmartCafe Report - ${new Date().toLocaleDateString()}`,
     pageStyle: `
       @page { size: A4 portrait; margin: 20mm; }
-      body { 
+      body {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-      }
-      .recharts-responsive-container {
-        width: 100% !important;
-        height: 300px !important;
-        display: block !important;
-      }
-      .recharts-wrapper, svg {
-        width: 100% !important;
-        height: 100% !important;
-        display: block !important;
-      }
-      .recharts-bar-rectangle path {
-        fill: #8884d8 !important; /* Force fill color for bars */
-        stroke: #666 !important; /* Force a stroke for visibility */
-      }
-       .recharts-text, .recharts-cartesian-axis-tick-value {
-        fill: #000 !important; /* Force text color */
-        font-size: 12px;
       }
     `,
   });
 
-  const triggerPrint = () => {
-    // Add a small delay to allow charts to render before printing
-    setTimeout(() => {
-      handlePrint();
-    }, 250);
-  };
+  const triggerPrint = useCallback(() => {
+    handlePrint();
+  }, [handlePrint]);
   
     // --- All-Time Stats based on PAID orders ---
     const paidOrders = orders.filter(o => o.status === 'Paid');
